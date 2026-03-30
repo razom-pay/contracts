@@ -6,7 +6,7 @@ service AccountService {
 }
 
 message GetAccountRequest {
-  string access_token = 1;
+  string id = 1;
 }
 
 message GetAccountResponse {
