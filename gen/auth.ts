@@ -44,13 +44,17 @@ export interface TelegramInitResponse {
   url: string;
 }
 
-export interface TelegramVerifyRequest {
-  query: { [key: string]: string };
+export interface TelegramQuery {
+  authDate: string;
+  firstName: string;
+  hash: string;
+  id: string;
+  photoUrl: string;
+  username: string;
 }
 
-export interface TelegramVerifyRequest_QueryEntry {
-  key: string;
-  value: string;
+export interface TelegramVerifyRequest {
+  query: TelegramQuery | undefined;
 }
 
 export interface TelegramVerifyResponse {
