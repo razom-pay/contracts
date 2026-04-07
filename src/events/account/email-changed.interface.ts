@@ -1,4 +1,4 @@
-export interface EmailChangedEvent {
+export interface EmailChangeEvent {
   email: string;
   code: string;
 }
