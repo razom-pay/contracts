@@ -44,23 +44,37 @@ export interface TelegramInitResponse {
   url: string;
 }
 
-export interface TelegramQuery {
-  authDate: string;
-  firstName: string;
-  hash: string;
-  id: string;
-  photoUrl: string;
-  username: string;
+export interface TelegramVerifyRequest {
+  query: { [key: string]: string };
 }
 
-export interface TelegramVerifyRequest {
-  query: TelegramQuery | undefined;
+export interface TelegramVerifyRequest_QueryEntry {
+  key: string;
+  value: string;
 }
 
 export interface TelegramVerifyResponse {
   url?: string | undefined;
   accessToken?: string | undefined;
   refreshToken?: string | undefined;
+}
+
+export interface TelegramCompleteRequest {
+  sessionId: string;
+  phone: string;
+}
+
+export interface TelegramCompleteResponse {
+  sessionId: string;
+}
+
+export interface TelegramConsumeRequest {
+  sessionId: string;
+}
+
+export interface TelegramConsumeResponse {
+  accessToken: string;
+  refreshToken: string;
 }
 
 export const AUTH_V1_PACKAGE_NAME = "auth.v1";
@@ -75,6 +89,10 @@ export interface AuthServiceClient {
   telegramInit(request: Empty): Observable<TelegramInitResponse>;
 
   telegramVerify(request: TelegramVerifyRequest): Observable<TelegramVerifyResponse>;
+
+  telegramComplete(request: TelegramCompleteRequest): Observable<TelegramCompleteResponse>;
+
+  telegramConsume(request: TelegramConsumeRequest): Observable<TelegramConsumeResponse>;
 }
 
 export interface AuthServiceController {
@@ -89,11 +107,27 @@ export interface AuthServiceController {
   telegramVerify(
     request: TelegramVerifyRequest,
   ): Promise<TelegramVerifyResponse> | Observable<TelegramVerifyResponse> | TelegramVerifyResponse;
+
+  telegramComplete(
+    request: TelegramCompleteRequest,
+  ): Promise<TelegramCompleteResponse> | Observable<TelegramCompleteResponse> | TelegramCompleteResponse;
+
+  telegramConsume(
+    request: TelegramConsumeRequest,
+  ): Promise<TelegramConsumeResponse> | Observable<TelegramConsumeResponse> | TelegramConsumeResponse;
 }
 
 export function AuthServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["sendOtp", "verifyOtp", "refresh", "telegramInit", "telegramVerify"];
+    const grpcMethods: string[] = [
+      "sendOtp",
+      "verifyOtp",
+      "refresh",
+      "telegramInit",
+      "telegramVerify",
+      "telegramComplete",
+      "telegramConsume",
+    ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("AuthService", method)(constructor.prototype[method], method, descriptor);
