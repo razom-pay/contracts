@@ -3,9 +3,17 @@ package users.v1;
 
 service UsersService {
   rpc GetMe(GetMeRequest) returns (GetMeResponse);
+  rpc GetUserProfile(GetUserProfileRequest) returns (GetUserProfileResponse);
 
   rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
   rpc PatchUser(PatchUserRequest) returns (PatchUserResponse);
+  rpc SetUserRoles(SetUserRolesRequest) returns (SetUserRolesResponse);
+
+  rpc SubmitKycLight(SubmitKycLightRequest) returns (SubmitKycLightResponse);
+  rpc ReviewKycLight(ReviewKycLightRequest) returns (ReviewKycLightResponse);
+
+  rpc CreateUserReview(CreateUserReviewRequest) returns (CreateUserReviewResponse);
+  rpc ListUserReviews(ListUserReviewsRequest) returns (ListUserReviewsResponse);
 }
 
 message GetMeRequest {
@@ -13,6 +21,14 @@ message GetMeRequest {
 }
 
 message GetMeResponse {
+  User user = 1;
+}
+
+message GetUserProfileRequest {
+  string id = 1;
+}
+
+message GetUserProfileResponse {
   User user = 1;
 }
 
@@ -27,10 +43,90 @@ message CreateUserResponse {
 message PatchUserRequest {
   string user_id = 1;
   optional string name = 2;
+  optional string avatar = 3;
+  optional string bio = 4;
+  optional string city = 5;
 }
 
 message PatchUserResponse {
   bool ok = 1;
+}
+
+message SetUserRolesRequest {
+  string user_id = 1;
+  repeated UserRole roles = 2;
+}
+
+message SetUserRolesResponse {
+  bool ok = 1;
+}
+
+message SubmitKycLightRequest {
+  string user_id = 1;
+  string full_name = 2;
+  string document_number_last4 = 3;
+  string country_code = 4;
+}
+
+message SubmitKycLightResponse {
+  bool ok = 1;
+}
+
+message ReviewKycLightRequest {
+  string user_id = 1;
+  bool approve = 2;
+  optional string reason = 3;
+}
+
+message ReviewKycLightResponse {
+  bool ok = 1;
+}
+
+message CreateUserReviewRequest {
+  string author_user_id = 1;
+  string target_user_id = 2;
+  uint32 rating = 3;
+  optional string comment = 4;
+}
+
+message CreateUserReviewResponse {
+  bool ok = 1;
+}
+
+message ListUserReviewsRequest {
+  string user_id = 1;
+  uint32 limit = 2;
+  uint32 offset = 3;
+}
+
+message ListUserReviewsResponse {
+  repeated UserReview reviews = 1;
+  uint32 total = 2;
+}
+
+message UserReview {
+  string id = 1;
+  string author_user_id = 2;
+  string target_user_id = 3;
+  uint32 rating = 4;
+  optional string comment = 5;
+  string created_at = 6;
+}
+
+enum UserRole {
+  USER_ROLE_UNSPECIFIED = 0;
+  USER_ROLE_MEMBER = 1;
+  USER_ROLE_ORGANIZER = 2;
+  USER_ROLE_SUPPLIER = 3;
+  USER_ROLE_MODERATOR = 4;
+}
+
+enum KycStatus {
+  KYC_STATUS_UNSPECIFIED = 0;
+  KYC_STATUS_UNVERIFIED = 1;
+  KYC_STATUS_PENDING = 2;
+  KYC_STATUS_VERIFIED = 3;
+  KYC_STATUS_REJECTED = 4;
 }
 
 message User {
@@ -39,4 +135,11 @@ message User {
   optional string phone = 3;
   optional string email = 4;
   optional string avatar = 5;
+  optional string bio = 6;
+  optional string city = 7;
+  repeated UserRole roles = 8;
+  double rating_score = 9;
+  uint32 reviews_count = 10;
+  KycStatus kyc_status = 11;
+  optional string kyc_level = 12;
 }

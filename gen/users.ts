@@ -18,6 +18,14 @@ export interface GetMeResponse {
   user: User | undefined;
 }
 
+export interface GetUserProfileRequest {
+  id: string;
+}
+
+export interface GetUserProfileResponse {
+  user: User | undefined;
+}
+
 export interface CreateUserRequest {
   id: string;
 }
@@ -26,12 +34,110 @@ export interface CreateUserResponse {
   ok: boolean;
 }
 
+export interface PatchUserRequest {
+  userId: string;
+  name?: string | undefined;
+  avatar?: string | undefined;
+  bio?: string | undefined;
+  city?: string | undefined;
+}
+
+export interface PatchUserResponse {
+  ok: boolean;
+}
+
+export interface SetUserRolesRequest {
+  userId: string;
+  roles: UserRole[];
+}
+
+export interface SetUserRolesResponse {
+  ok: boolean;
+}
+
+export interface SubmitKycLightRequest {
+  userId: string;
+  fullName: string;
+  documentNumberLast4: string;
+  countryCode: string;
+}
+
+export interface SubmitKycLightResponse {
+  ok: boolean;
+}
+
+export interface ReviewKycLightRequest {
+  userId: string;
+  approve: boolean;
+  reason?: string | undefined;
+}
+
+export interface ReviewKycLightResponse {
+  ok: boolean;
+}
+
+export interface CreateUserReviewRequest {
+  authorUserId: string;
+  targetUserId: string;
+  rating: number;
+  comment?: string | undefined;
+}
+
+export interface CreateUserReviewResponse {
+  ok: boolean;
+}
+
+export interface ListUserReviewsRequest {
+  userId: string;
+  limit: number;
+  offset: number;
+}
+
+export interface ListUserReviewsResponse {
+  reviews: UserReview[];
+  total: number;
+}
+
+export interface UserReview {
+  id: string;
+  authorUserId: string;
+  targetUserId: string;
+  rating: number;
+  comment?: string | undefined;
+  createdAt: string;
+}
+
+export enum UserRole {
+  USER_ROLE_UNSPECIFIED = 0,
+  USER_ROLE_MEMBER = 1,
+  USER_ROLE_ORGANIZER = 2,
+  USER_ROLE_SUPPLIER = 3,
+  USER_ROLE_MODERATOR = 4,
+  UNRECOGNIZED = -1,
+}
+
+export enum KycStatus {
+  KYC_STATUS_UNSPECIFIED = 0,
+  KYC_STATUS_UNVERIFIED = 1,
+  KYC_STATUS_PENDING = 2,
+  KYC_STATUS_VERIFIED = 3,
+  KYC_STATUS_REJECTED = 4,
+  UNRECOGNIZED = -1,
+}
+
 export interface User {
   id: string;
   name?: string | undefined;
   phone?: string | undefined;
   email?: string | undefined;
   avatar?: string | undefined;
+  bio?: string | undefined;
+  city?: string | undefined;
+  roles: UserRole[];
+  ratingScore: number;
+  reviewsCount: number;
+  kycStatus: KycStatus;
+  kycLevel?: string | undefined;
 }
 
 export const USERS_V1_PACKAGE_NAME = "users.v1";
@@ -39,20 +145,70 @@ export const USERS_V1_PACKAGE_NAME = "users.v1";
 export interface UsersServiceClient {
   getMe(request: GetMeRequest): Observable<GetMeResponse>;
 
+  getUserProfile(request: GetUserProfileRequest): Observable<GetUserProfileResponse>;
+
   createUser(request: CreateUserRequest): Observable<CreateUserResponse>;
+
+  patchUser(request: PatchUserRequest): Observable<PatchUserResponse>;
+
+  setUserRoles(request: SetUserRolesRequest): Observable<SetUserRolesResponse>;
+
+  submitKycLight(request: SubmitKycLightRequest): Observable<SubmitKycLightResponse>;
+
+  reviewKycLight(request: ReviewKycLightRequest): Observable<ReviewKycLightResponse>;
+
+  createUserReview(request: CreateUserReviewRequest): Observable<CreateUserReviewResponse>;
+
+  listUserReviews(request: ListUserReviewsRequest): Observable<ListUserReviewsResponse>;
 }
 
 export interface UsersServiceController {
   getMe(request: GetMeRequest): Promise<GetMeResponse> | Observable<GetMeResponse> | GetMeResponse;
 
+  getUserProfile(
+    request: GetUserProfileRequest,
+  ): Promise<GetUserProfileResponse> | Observable<GetUserProfileResponse> | GetUserProfileResponse;
+
   createUser(
     request: CreateUserRequest,
   ): Promise<CreateUserResponse> | Observable<CreateUserResponse> | CreateUserResponse;
+
+  patchUser(request: PatchUserRequest): Promise<PatchUserResponse> | Observable<PatchUserResponse> | PatchUserResponse;
+
+  setUserRoles(
+    request: SetUserRolesRequest,
+  ): Promise<SetUserRolesResponse> | Observable<SetUserRolesResponse> | SetUserRolesResponse;
+
+  submitKycLight(
+    request: SubmitKycLightRequest,
+  ): Promise<SubmitKycLightResponse> | Observable<SubmitKycLightResponse> | SubmitKycLightResponse;
+
+  reviewKycLight(
+    request: ReviewKycLightRequest,
+  ): Promise<ReviewKycLightResponse> | Observable<ReviewKycLightResponse> | ReviewKycLightResponse;
+
+  createUserReview(
+    request: CreateUserReviewRequest,
+  ): Promise<CreateUserReviewResponse> | Observable<CreateUserReviewResponse> | CreateUserReviewResponse;
+
+  listUserReviews(
+    request: ListUserReviewsRequest,
+  ): Promise<ListUserReviewsResponse> | Observable<ListUserReviewsResponse> | ListUserReviewsResponse;
 }
 
 export function UsersServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["getMe", "createUser"];
+    const grpcMethods: string[] = [
+      "getMe",
+      "getUserProfile",
+      "createUser",
+      "patchUser",
+      "setUserRoles",
+      "submitKycLight",
+      "reviewKycLight",
+      "createUserReview",
+      "listUserReviews",
+    ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("UsersService", method)(constructor.prototype[method], method, descriptor);
