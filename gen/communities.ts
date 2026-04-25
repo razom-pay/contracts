@@ -8,7 +8,7 @@
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
 
-export const protobufPackage = "community.v1";
+export const protobufPackage = "communities.v1";
 
 export enum CommunityVisibility {
   COMMUNITY_VISIBILITY_UNSPECIFIED = 0,
@@ -186,22 +186,16 @@ export interface ListCommunityMembersResponse {
   members: CommunityMember[];
 }
 
-export const COMMUNITY_V1_PACKAGE_NAME = "community.v1";
+export const COMMUNITIES_V1_PACKAGE_NAME = "communities.v1";
 
 export interface CommunitiesServiceClient {
-  createCommunity(
-    request: CreateCommunityRequest,
-  ): Observable<CreateCommunityResponse>;
+  createCommunity(request: CreateCommunityRequest): Observable<CreateCommunityResponse>;
 
   getCommunity(request: GetCommunityRequest): Observable<GetCommunityResponse>;
 
-  patchCommunity(
-    request: PatchCommunityRequest,
-  ): Observable<PatchCommunityResponse>;
+  patchCommunity(request: PatchCommunityRequest): Observable<PatchCommunityResponse>;
 
-  listMyCommunities(
-    request: ListMyCommunitiesRequest,
-  ): Observable<ListMyCommunitiesResponse>;
+  listMyCommunities(request: ListMyCommunitiesRequest): Observable<ListMyCommunitiesResponse>;
 
   joinCommunity(request: JoinCommunityRequest): Observable<ActionResponse>;
 
@@ -219,81 +213,47 @@ export interface CommunitiesServiceClient {
 
   unbanMember(request: UnbanMemberRequest): Observable<ActionResponse>;
 
-  listCommunityMembers(
-    request: ListCommunityMembersRequest,
-  ): Observable<ListCommunityMembersResponse>;
+  listCommunityMembers(request: ListCommunityMembersRequest): Observable<ListCommunityMembersResponse>;
 }
 
 export interface CommunitiesServiceController {
   createCommunity(
     request: CreateCommunityRequest,
-  ):
-    | Promise<CreateCommunityResponse>
-    | Observable<CreateCommunityResponse>
-    | CreateCommunityResponse;
+  ): Promise<CreateCommunityResponse> | Observable<CreateCommunityResponse> | CreateCommunityResponse;
 
   getCommunity(
     request: GetCommunityRequest,
-  ):
-    | Promise<GetCommunityResponse>
-    | Observable<GetCommunityResponse>
-    | GetCommunityResponse;
+  ): Promise<GetCommunityResponse> | Observable<GetCommunityResponse> | GetCommunityResponse;
 
   patchCommunity(
     request: PatchCommunityRequest,
-  ):
-    | Promise<PatchCommunityResponse>
-    | Observable<PatchCommunityResponse>
-    | PatchCommunityResponse;
+  ): Promise<PatchCommunityResponse> | Observable<PatchCommunityResponse> | PatchCommunityResponse;
 
   listMyCommunities(
     request: ListMyCommunitiesRequest,
-  ):
-    | Promise<ListMyCommunitiesResponse>
-    | Observable<ListMyCommunitiesResponse>
-    | ListMyCommunitiesResponse;
+  ): Promise<ListMyCommunitiesResponse> | Observable<ListMyCommunitiesResponse> | ListMyCommunitiesResponse;
 
-  joinCommunity(
-    request: JoinCommunityRequest,
-  ): Promise<ActionResponse> | Observable<ActionResponse> | ActionResponse;
+  joinCommunity(request: JoinCommunityRequest): Promise<ActionResponse> | Observable<ActionResponse> | ActionResponse;
 
-  leaveCommunity(
-    request: LeaveCommunityRequest,
-  ): Promise<ActionResponse> | Observable<ActionResponse> | ActionResponse;
+  leaveCommunity(request: LeaveCommunityRequest): Promise<ActionResponse> | Observable<ActionResponse> | ActionResponse;
 
   inviteMember(
     request: InviteMemberRequest,
-  ):
-    | Promise<InviteMemberResponse>
-    | Observable<InviteMemberResponse>
-    | InviteMemberResponse;
+  ): Promise<InviteMemberResponse> | Observable<InviteMemberResponse> | InviteMemberResponse;
 
-  acceptInvite(
-    request: AcceptInviteRequest,
-  ): Promise<ActionResponse> | Observable<ActionResponse> | ActionResponse;
+  acceptInvite(request: AcceptInviteRequest): Promise<ActionResponse> | Observable<ActionResponse> | ActionResponse;
 
-  declineInvite(
-    request: DeclineInviteRequest,
-  ): Promise<ActionResponse> | Observable<ActionResponse> | ActionResponse;
+  declineInvite(request: DeclineInviteRequest): Promise<ActionResponse> | Observable<ActionResponse> | ActionResponse;
 
-  assignRole(
-    request: AssignRoleRequest,
-  ): Promise<ActionResponse> | Observable<ActionResponse> | ActionResponse;
+  assignRole(request: AssignRoleRequest): Promise<ActionResponse> | Observable<ActionResponse> | ActionResponse;
 
-  banMember(
-    request: BanMemberRequest,
-  ): Promise<ActionResponse> | Observable<ActionResponse> | ActionResponse;
+  banMember(request: BanMemberRequest): Promise<ActionResponse> | Observable<ActionResponse> | ActionResponse;
 
-  unbanMember(
-    request: UnbanMemberRequest,
-  ): Promise<ActionResponse> | Observable<ActionResponse> | ActionResponse;
+  unbanMember(request: UnbanMemberRequest): Promise<ActionResponse> | Observable<ActionResponse> | ActionResponse;
 
   listCommunityMembers(
     request: ListCommunityMembersRequest,
-  ):
-    | Promise<ListCommunityMembersResponse>
-    | Observable<ListCommunityMembersResponse>
-    | ListCommunityMembersResponse;
+  ): Promise<ListCommunityMembersResponse> | Observable<ListCommunityMembersResponse> | ListCommunityMembersResponse;
 }
 
 export function CommunitiesServiceControllerMethods() {
@@ -314,27 +274,13 @@ export function CommunitiesServiceControllerMethods() {
       "listCommunityMembers",
     ];
     for (const method of grpcMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(
-        constructor.prototype,
-        method,
-      );
-      GrpcMethod("CommunitiesService", method)(
-        constructor.prototype[method],
-        method,
-        descriptor,
-      );
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcMethod("CommunitiesService", method)(constructor.prototype[method], method, descriptor);
     }
     const grpcStreamMethods: string[] = [];
     for (const method of grpcStreamMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(
-        constructor.prototype,
-        method,
-      );
-      GrpcStreamMethod("CommunitiesService", method)(
-        constructor.prototype[method],
-        method,
-        descriptor,
-      );
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcStreamMethod("CommunitiesService", method)(constructor.prototype[method], method, descriptor);
     }
   };
 }

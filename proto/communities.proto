@@ -1,5 +1,5 @@
 syntax = "proto3";
-package community.v1;
+package communities.v1;
 
 service CommunitiesService {
   rpc CreateCommunity(CreateCommunityRequest) returns (CreateCommunityResponse);
