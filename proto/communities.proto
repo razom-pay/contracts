@@ -15,6 +15,12 @@ service CommunitiesService {
   rpc BanMember(BanMemberRequest) returns (ActionResponse);
   rpc UnbanMember(UnbanMemberRequest) returns (ActionResponse);
   rpc ListCommunityMembers(ListCommunityMembersRequest) returns (ListCommunityMembersResponse);
+
+  // Initiatives
+  rpc CreateInitiative(CreateInitiativeRequest) returns (CreateInitiativeResponse);
+  rpc GetInitiative(GetInitiativeRequest) returns (GetInitiativeResponse);
+  rpc ListCommunityInitiatives(ListCommunityInitiativesRequest) returns (ListCommunityInitiativesResponse);
+  rpc ContributeToInitiative(ContributeToInitiativeRequest) returns (ContributeToInitiativeResponse);
 }
 
 enum CommunityVisibility {
@@ -36,6 +42,20 @@ enum CommunityInviteStatus {
   COMMUNITY_INVITE_STATUS_ACCEPTED = 2;
   COMMUNITY_INVITE_STATUS_DECLINED = 3;
   COMMUNITY_INVITE_STATUS_CANCELED = 4;
+}
+
+enum InitiativeType {
+  INITIATIVE_TYPE_UNSPECIFIED = 0;
+  INITIATIVE_TYPE_CROWDFUNDING = 1;
+  INITIATIVE_TYPE_WHOLESALE = 2;
+}
+
+enum InitiativeStatus {
+  INITIATIVE_STATUS_UNSPECIFIED = 0;
+  INITIATIVE_STATUS_ACTIVE = 1;
+  INITIATIVE_STATUS_COMPLETED = 2;
+  INITIATIVE_STATUS_FAILED = 3;
+  INITIATIVE_STATUS_CANCELLED = 4;
 }
 
 message Community {
@@ -188,4 +208,90 @@ message ListCommunityMembersRequest {
 
 message ListCommunityMembersResponse {
   repeated CommunityMember members = 1;
+}
+
+message WholesaleTier {
+  int32 min_quantity = 1;
+  int32 price = 2; // in kopiiky
+}
+
+message Initiative {
+  string id = 1;
+  string community_id = 2;
+  string created_by_user_id = 3;
+  string title = 4;
+  optional string description = 5;
+  InitiativeType type = 6;
+  InitiativeStatus status = 7;
+  string deadline = 8;
+  
+  // Crowdfunding
+  optional int32 target_amount = 9;
+  optional int32 min_contribution = 10;
+  optional int32 max_contribution = 11;
+  optional int32 exact_contribution = 12;
+
+  // Wholesale
+  optional int32 wholesale_max_quantity = 13;
+  repeated WholesaleTier wholesale_tiers = 14;
+
+  string created_at = 15;
+  string updated_at = 16;
+}
+
+message InitiativeContribution {
+  string id = 1;
+  string initiative_id = 2;
+  string user_id = 3;
+  int32 amount = 4;
+  string status = 5;
+  string created_at = 6;
+  string updated_at = 7;
+}
+
+message CreateInitiativeRequest {
+  string community_id = 1;
+  string user_id = 2;
+  string title = 3;
+  optional string description = 4;
+  InitiativeType type = 5;
+  string deadline = 6;
+
+  optional int32 target_amount = 7;
+  optional int32 min_contribution = 8;
+  optional int32 max_contribution = 9;
+  optional int32 exact_contribution = 10;
+
+  optional int32 wholesale_max_quantity = 11;
+  repeated WholesaleTier wholesale_tiers = 12;
+}
+
+message CreateInitiativeResponse {
+  Initiative initiative = 1;
+}
+
+message GetInitiativeRequest {
+  string initiative_id = 1;
+}
+
+message GetInitiativeResponse {
+  Initiative initiative = 1;
+}
+
+message ListCommunityInitiativesRequest {
+  string community_id = 1;
+}
+
+message ListCommunityInitiativesResponse {
+  repeated Initiative initiatives = 1;
+}
+
+message ContributeToInitiativeRequest {
+  string initiative_id = 1;
+  string user_id = 2;
+  int32 amount = 3;
+}
+
+message ContributeToInitiativeResponse {
+  InitiativeContribution contribution = 1;
 }

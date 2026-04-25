@@ -34,6 +34,22 @@ export enum CommunityInviteStatus {
   UNRECOGNIZED = -1,
 }
 
+export enum InitiativeType {
+  INITIATIVE_TYPE_UNSPECIFIED = 0,
+  INITIATIVE_TYPE_CROWDFUNDING = 1,
+  INITIATIVE_TYPE_WHOLESALE = 2,
+  UNRECOGNIZED = -1,
+}
+
+export enum InitiativeStatus {
+  INITIATIVE_STATUS_UNSPECIFIED = 0,
+  INITIATIVE_STATUS_ACTIVE = 1,
+  INITIATIVE_STATUS_COMPLETED = 2,
+  INITIATIVE_STATUS_FAILED = 3,
+  INITIATIVE_STATUS_CANCELLED = 4,
+  UNRECOGNIZED = -1,
+}
+
 export interface Community {
   id: string;
   description: string;
@@ -186,6 +202,90 @@ export interface ListCommunityMembersResponse {
   members: CommunityMember[];
 }
 
+export interface WholesaleTier {
+  minQuantity: number;
+  /** in kopiiky */
+  price: number;
+}
+
+export interface Initiative {
+  id: string;
+  communityId: string;
+  createdByUserId: string;
+  title: string;
+  description?: string | undefined;
+  type: InitiativeType;
+  status: InitiativeStatus;
+  deadline: string;
+  /** Crowdfunding */
+  targetAmount?: number | undefined;
+  minContribution?: number | undefined;
+  maxContribution?: number | undefined;
+  exactContribution?:
+    | number
+    | undefined;
+  /** Wholesale */
+  wholesaleMaxQuantity?: number | undefined;
+  wholesaleTiers: WholesaleTier[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface InitiativeContribution {
+  id: string;
+  initiativeId: string;
+  userId: string;
+  amount: number;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateInitiativeRequest {
+  communityId: string;
+  userId: string;
+  title: string;
+  description?: string | undefined;
+  type: InitiativeType;
+  deadline: string;
+  targetAmount?: number | undefined;
+  minContribution?: number | undefined;
+  maxContribution?: number | undefined;
+  exactContribution?: number | undefined;
+  wholesaleMaxQuantity?: number | undefined;
+  wholesaleTiers: WholesaleTier[];
+}
+
+export interface CreateInitiativeResponse {
+  initiative: Initiative | undefined;
+}
+
+export interface GetInitiativeRequest {
+  initiativeId: string;
+}
+
+export interface GetInitiativeResponse {
+  initiative: Initiative | undefined;
+}
+
+export interface ListCommunityInitiativesRequest {
+  communityId: string;
+}
+
+export interface ListCommunityInitiativesResponse {
+  initiatives: Initiative[];
+}
+
+export interface ContributeToInitiativeRequest {
+  initiativeId: string;
+  userId: string;
+  amount: number;
+}
+
+export interface ContributeToInitiativeResponse {
+  contribution: InitiativeContribution | undefined;
+}
+
 export const COMMUNITIES_V1_PACKAGE_NAME = "communities.v1";
 
 export interface CommunitiesServiceClient {
@@ -214,6 +314,16 @@ export interface CommunitiesServiceClient {
   unbanMember(request: UnbanMemberRequest): Observable<ActionResponse>;
 
   listCommunityMembers(request: ListCommunityMembersRequest): Observable<ListCommunityMembersResponse>;
+
+  /** Initiatives */
+
+  createInitiative(request: CreateInitiativeRequest): Observable<CreateInitiativeResponse>;
+
+  getInitiative(request: GetInitiativeRequest): Observable<GetInitiativeResponse>;
+
+  listCommunityInitiatives(request: ListCommunityInitiativesRequest): Observable<ListCommunityInitiativesResponse>;
+
+  contributeToInitiative(request: ContributeToInitiativeRequest): Observable<ContributeToInitiativeResponse>;
 }
 
 export interface CommunitiesServiceController {
@@ -254,6 +364,30 @@ export interface CommunitiesServiceController {
   listCommunityMembers(
     request: ListCommunityMembersRequest,
   ): Promise<ListCommunityMembersResponse> | Observable<ListCommunityMembersResponse> | ListCommunityMembersResponse;
+
+  /** Initiatives */
+
+  createInitiative(
+    request: CreateInitiativeRequest,
+  ): Promise<CreateInitiativeResponse> | Observable<CreateInitiativeResponse> | CreateInitiativeResponse;
+
+  getInitiative(
+    request: GetInitiativeRequest,
+  ): Promise<GetInitiativeResponse> | Observable<GetInitiativeResponse> | GetInitiativeResponse;
+
+  listCommunityInitiatives(
+    request: ListCommunityInitiativesRequest,
+  ):
+    | Promise<ListCommunityInitiativesResponse>
+    | Observable<ListCommunityInitiativesResponse>
+    | ListCommunityInitiativesResponse;
+
+  contributeToInitiative(
+    request: ContributeToInitiativeRequest,
+  ):
+    | Promise<ContributeToInitiativeResponse>
+    | Observable<ContributeToInitiativeResponse>
+    | ContributeToInitiativeResponse;
 }
 
 export function CommunitiesServiceControllerMethods() {
@@ -272,6 +406,10 @@ export function CommunitiesServiceControllerMethods() {
       "banMember",
       "unbanMember",
       "listCommunityMembers",
+      "createInitiative",
+      "getInitiative",
+      "listCommunityInitiatives",
+      "contributeToInitiative",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
