@@ -2,10 +2,10 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "declaration": true,
-    "outDir": "./dist/gen",
-    "rootDir": "./gen",
+    "outDir": "./dist",
+    "rootDir": "./src",
     "types": ["node"]
   },
-  "include": ["gen/**/*.ts"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "test"]
 }
