@@ -1,0 +1,112 @@
+syntax = "proto3";
+package escrow.v1;
+
+service EscrowService {
+  // Create an escrow for an initiative (called when initiative is created)
+  rpc CreateEscrow(CreateEscrowRequest) returns (CreateEscrowResponse);
+
+  // Contribute funds to an escrow
+  rpc Contribute(ContributeRequest) returns (ContributeResponse);
+
+  // Get escrow details
+  rpc GetEscrow(GetEscrowRequest) returns (GetEscrowResponse);
+
+  // List all contributions for an escrow
+  rpc ListContributions(ListContributionsRequest) returns (ListContributionsResponse);
+
+  // Manually trigger settlement (also triggered via RabbitMQ event)
+  rpc SettleEscrow(SettleEscrowRequest) returns (SettleEscrowResponse);
+
+  // Get a specific user's contributions for an escrow
+  rpc GetUserContributions(GetUserContributionsRequest) returns (GetUserContributionsResponse);
+}
+
+enum EscrowStatus {
+  ESCROW_STATUS_UNSPECIFIED = 0;
+  ESCROW_STATUS_ACTIVE = 1;
+  ESCROW_STATUS_SETTLED = 2;
+  ESCROW_STATUS_REFUNDED = 3;
+}
+
+enum ContributionStatus {
+  CONTRIBUTION_STATUS_UNSPECIFIED = 0;
+  CONTRIBUTION_STATUS_FROZEN = 1;
+  CONTRIBUTION_STATUS_RELEASED = 2;
+  CONTRIBUTION_STATUS_REFUNDED = 3;
+  CONTRIBUTION_STATUS_PARTIALLY_REFUNDED = 4;
+}
+
+message Escrow {
+  string id = 1;
+  string initiative_id = 2;
+  string organizer_user_id = 3;
+  EscrowStatus status = 4;
+  int64 total_frozen = 5;
+  int64 total_released = 6;
+  int64 total_refunded = 7;
+  string created_at = 8;
+  string updated_at = 9;
+}
+
+message Contribution {
+  string id = 1;
+  string escrow_id = 2;
+  string user_id = 3;
+  int64 amount = 4;
+  int64 refunded_amount = 5;
+  ContributionStatus status = 6;
+  string created_at = 7;
+  string updated_at = 8;
+}
+
+message CreateEscrowRequest {
+  string initiative_id = 1;
+  string organizer_user_id = 2;
+}
+
+message CreateEscrowResponse {
+  Escrow escrow = 1;
+}
+
+message ContributeRequest {
+  string initiative_id = 1;
+  string user_id = 2;
+  int64 amount = 3;
+}
+
+message ContributeResponse {
+  Contribution contribution = 1;
+}
+
+message GetEscrowRequest {
+  string initiative_id = 1;
+}
+
+message GetEscrowResponse {
+  Escrow escrow = 1;
+}
+
+message ListContributionsRequest {
+  string initiative_id = 1;
+}
+
+message ListContributionsResponse {
+  repeated Contribution contributions = 1;
+}
+
+message SettleEscrowRequest {
+  string initiative_id = 1;
+}
+
+message SettleEscrowResponse {
+  Escrow escrow = 1;
+}
+
+message GetUserContributionsRequest {
+  string initiative_id = 1;
+  string user_id = 2;
+}
+
+message GetUserContributionsResponse {
+  repeated Contribution contributions = 1;
+}

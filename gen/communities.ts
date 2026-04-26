@@ -47,6 +47,8 @@ export enum InitiativeStatus {
   INITIATIVE_STATUS_COMPLETED = 2,
   INITIATIVE_STATUS_FAILED = 3,
   INITIATIVE_STATUS_CANCELLED = 4,
+  /** INITIATIVE_STATUS_PROCESSING - Deadline reached, settlement in progress */
+  INITIATIVE_STATUS_PROCESSING = 5,
   UNRECOGNIZED = -1,
 }
 
@@ -231,16 +233,6 @@ export interface Initiative {
   updatedAt: string;
 }
 
-export interface InitiativeContribution {
-  id: string;
-  initiativeId: string;
-  userId: string;
-  amount: number;
-  status: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
 export interface CreateInitiativeRequest {
   communityId: string;
   userId: string;
@@ -276,14 +268,13 @@ export interface ListCommunityInitiativesResponse {
   initiatives: Initiative[];
 }
 
-export interface ContributeToInitiativeRequest {
+export interface UpdateInitiativeStatusRequest {
   initiativeId: string;
-  userId: string;
-  amount: number;
+  status: InitiativeStatus;
 }
 
-export interface ContributeToInitiativeResponse {
-  contribution: InitiativeContribution | undefined;
+export interface UpdateInitiativeStatusResponse {
+  initiative: Initiative | undefined;
 }
 
 export const COMMUNITIES_V1_PACKAGE_NAME = "communities.v1";
@@ -323,7 +314,9 @@ export interface CommunitiesServiceClient {
 
   listCommunityInitiatives(request: ListCommunityInitiativesRequest): Observable<ListCommunityInitiativesResponse>;
 
-  contributeToInitiative(request: ContributeToInitiativeRequest): Observable<ContributeToInitiativeResponse>;
+  /** Initiative status update (called by escrow-service after settlement) */
+
+  updateInitiativeStatus(request: UpdateInitiativeStatusRequest): Observable<UpdateInitiativeStatusResponse>;
 }
 
 export interface CommunitiesServiceController {
@@ -382,12 +375,14 @@ export interface CommunitiesServiceController {
     | Observable<ListCommunityInitiativesResponse>
     | ListCommunityInitiativesResponse;
 
-  contributeToInitiative(
-    request: ContributeToInitiativeRequest,
+  /** Initiative status update (called by escrow-service after settlement) */
+
+  updateInitiativeStatus(
+    request: UpdateInitiativeStatusRequest,
   ):
-    | Promise<ContributeToInitiativeResponse>
-    | Observable<ContributeToInitiativeResponse>
-    | ContributeToInitiativeResponse;
+    | Promise<UpdateInitiativeStatusResponse>
+    | Observable<UpdateInitiativeStatusResponse>
+    | UpdateInitiativeStatusResponse;
 }
 
 export function CommunitiesServiceControllerMethods() {
@@ -409,7 +404,7 @@ export function CommunitiesServiceControllerMethods() {
       "createInitiative",
       "getInitiative",
       "listCommunityInitiatives",
-      "contributeToInitiative",
+      "updateInitiativeStatus",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

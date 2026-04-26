@@ -20,7 +20,8 @@ service CommunitiesService {
   rpc CreateInitiative(CreateInitiativeRequest) returns (CreateInitiativeResponse);
   rpc GetInitiative(GetInitiativeRequest) returns (GetInitiativeResponse);
   rpc ListCommunityInitiatives(ListCommunityInitiativesRequest) returns (ListCommunityInitiativesResponse);
-  rpc ContributeToInitiative(ContributeToInitiativeRequest) returns (ContributeToInitiativeResponse);
+  // Initiative status update (called by escrow-service after settlement)
+  rpc UpdateInitiativeStatus(UpdateInitiativeStatusRequest) returns (UpdateInitiativeStatusResponse);
 }
 
 enum CommunityVisibility {
@@ -56,6 +57,7 @@ enum InitiativeStatus {
   INITIATIVE_STATUS_COMPLETED = 2;
   INITIATIVE_STATUS_FAILED = 3;
   INITIATIVE_STATUS_CANCELLED = 4;
+  INITIATIVE_STATUS_PROCESSING = 5; // Deadline reached, settlement in progress
 }
 
 message Community {
@@ -239,15 +241,7 @@ message Initiative {
   string updated_at = 16;
 }
 
-message InitiativeContribution {
-  string id = 1;
-  string initiative_id = 2;
-  string user_id = 3;
-  int32 amount = 4;
-  string status = 5;
-  string created_at = 6;
-  string updated_at = 7;
-}
+
 
 message CreateInitiativeRequest {
   string community_id = 1;
@@ -286,12 +280,11 @@ message ListCommunityInitiativesResponse {
   repeated Initiative initiatives = 1;
 }
 
-message ContributeToInitiativeRequest {
+message UpdateInitiativeStatusRequest {
   string initiative_id = 1;
-  string user_id = 2;
-  int32 amount = 3;
+  InitiativeStatus status = 2;
 }
 
-message ContributeToInitiativeResponse {
-  InitiativeContribution contribution = 1;
+message UpdateInitiativeStatusResponse {
+  Initiative initiative = 1;
 }

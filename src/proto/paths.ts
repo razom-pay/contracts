@@ -5,4 +5,5 @@ export const PROTO_PATHS = {
   ACCOUNT: join(__dirname, "../../proto/account.proto"),
   USERS: join(__dirname, "../../proto/users.proto"),
   COMMUNITIES: join(__dirname, "../../proto/communities.proto"),
+  ESCROW: join(__dirname, "../../proto/escrow.proto"),
 } as const;
