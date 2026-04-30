@@ -24,6 +24,19 @@ export enum ContributionStatus {
   CONTRIBUTION_STATUS_RELEASED = 2,
   CONTRIBUTION_STATUS_REFUNDED = 3,
   CONTRIBUTION_STATUS_PARTIALLY_REFUNDED = 4,
+  CONTRIBUTION_STATUS_DISPUTED = 5,
+  UNRECOGNIZED = -1,
+}
+
+export enum PaymentStatus {
+  PAYMENT_STATUS_UNSPECIFIED = 0,
+  PAYMENT_STATUS_REQUIRES_PAYMENT = 1,
+  PAYMENT_STATUS_SUCCEEDED = 2,
+  PAYMENT_STATUS_FAILED = 3,
+  PAYMENT_STATUS_CANCELED = 4,
+  PAYMENT_STATUS_REFUNDED = 5,
+  PAYMENT_STATUS_PARTIALLY_REFUNDED = 6,
+  PAYMENT_STATUS_DISPUTED = 7,
   UNRECOGNIZED = -1,
 }
 
@@ -48,6 +61,25 @@ export interface Contribution {
   status: ContributionStatus;
   createdAt: string;
   updatedAt: string;
+  paymentId?: string | undefined;
+  feeAmount: number;
+}
+
+export interface ContributionPayment {
+  id: string;
+  escrowId: string;
+  initiativeId: string;
+  userId: string;
+  stripePaymentIntentId: string;
+  amount: number;
+  feeAmount: number;
+  totalAmount: number;
+  currency: string;
+  status: PaymentStatus;
+  contributionId?: string | undefined;
+  cancelAvailableUntil: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateEscrowRequest {
@@ -67,6 +99,18 @@ export interface ContributeRequest {
 
 export interface ContributeResponse {
   contribution: Contribution | undefined;
+}
+
+export interface CreateContributionPaymentRequest {
+  initiativeId: string;
+  userId: string;
+  amount: number;
+  idempotencyKey?: string | undefined;
+}
+
+export interface CreateContributionPaymentResponse {
+  payment: ContributionPayment | undefined;
+  clientSecret: string;
 }
 
 export interface GetEscrowRequest {
@@ -102,12 +146,27 @@ export interface GetUserContributionsResponse {
   contributions: Contribution[];
 }
 
+export interface CancelContributionRequest {
+  initiativeId: string;
+  userId: string;
+  paymentId: string;
+}
+
+export interface CancelContributionResponse {
+  contribution: Contribution | undefined;
+  payment: ContributionPayment | undefined;
+}
+
 export const ESCROW_V1_PACKAGE_NAME = "escrow.v1";
 
 export interface EscrowServiceClient {
   /** Create an escrow for an initiative (called when initiative is created) */
 
   createEscrow(request: CreateEscrowRequest): Observable<CreateEscrowResponse>;
+
+  /** Create a Stripe payment intent for contribution */
+
+  createContributionPayment(request: CreateContributionPaymentRequest): Observable<CreateContributionPaymentResponse>;
 
   /** Contribute funds to an escrow */
 
@@ -128,6 +187,10 @@ export interface EscrowServiceClient {
   /** Get a specific user's contributions for an escrow */
 
   getUserContributions(request: GetUserContributionsRequest): Observable<GetUserContributionsResponse>;
+
+  /** Cancel contribution within the allowed window */
+
+  cancelContribution(request: CancelContributionRequest): Observable<CancelContributionResponse>;
 }
 
 export interface EscrowServiceController {
@@ -136,6 +199,15 @@ export interface EscrowServiceController {
   createEscrow(
     request: CreateEscrowRequest,
   ): Promise<CreateEscrowResponse> | Observable<CreateEscrowResponse> | CreateEscrowResponse;
+
+  /** Create a Stripe payment intent for contribution */
+
+  createContributionPayment(
+    request: CreateContributionPaymentRequest,
+  ):
+    | Promise<CreateContributionPaymentResponse>
+    | Observable<CreateContributionPaymentResponse>
+    | CreateContributionPaymentResponse;
 
   /** Contribute funds to an escrow */
 
@@ -164,17 +236,25 @@ export interface EscrowServiceController {
   getUserContributions(
     request: GetUserContributionsRequest,
   ): Promise<GetUserContributionsResponse> | Observable<GetUserContributionsResponse> | GetUserContributionsResponse;
+
+  /** Cancel contribution within the allowed window */
+
+  cancelContribution(
+    request: CancelContributionRequest,
+  ): Promise<CancelContributionResponse> | Observable<CancelContributionResponse> | CancelContributionResponse;
 }
 
 export function EscrowServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = [
       "createEscrow",
+      "createContributionPayment",
       "contribute",
       "getEscrow",
       "listContributions",
       "settleEscrow",
       "getUserContributions",
+      "cancelContribution",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

@@ -27,6 +27,7 @@ message CreateUserResponse {
 message PatchUserRequest {
   string user_id = 1;
   optional string name = 2;
+  optional string stripe_account_id = 3;
 }
 
 message PatchUserResponse {
@@ -39,4 +40,5 @@ message User {
   optional string phone = 3;
   optional string email = 4;
   optional string avatar = 5;
+  optional string stripe_account_id = 6;
 }

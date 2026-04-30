@@ -29,6 +29,7 @@ export interface CreateUserResponse {
 export interface PatchUserRequest {
   userId: string;
   name?: string | undefined;
+  stripeAccountId?: string | undefined;
 }
 
 export interface PatchUserResponse {
@@ -41,6 +42,7 @@ export interface User {
   phone?: string | undefined;
   email?: string | undefined;
   avatar?: string | undefined;
+  stripeAccountId?: string | undefined;
 }
 
 export const USERS_V1_PACKAGE_NAME = "users.v1";
