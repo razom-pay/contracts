@@ -54,9 +54,9 @@ export interface TelegramVerifyRequest_QueryEntry {
 }
 
 export interface TelegramVerifyResponse {
-  url?: string | undefined;
-  accessToken?: string | undefined;
-  refreshToken?: string | undefined;
+  url: string;
+  accessToken: string;
+  refreshToken: string;
 }
 
 export interface TelegramCompleteRequest {

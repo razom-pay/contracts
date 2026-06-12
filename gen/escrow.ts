@@ -131,6 +131,7 @@ export interface ListContributionsResponse {
 
 export interface SettleEscrowRequest {
   initiativeId: string;
+  userId?: string | undefined;
 }
 
 export interface SettleEscrowResponse {

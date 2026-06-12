@@ -145,6 +145,7 @@ message ListContributionsResponse {
 
 message SettleEscrowRequest {
   string initiative_id = 1;
+  optional string user_id = 2;
 }
 
 message SettleEscrowResponse {
